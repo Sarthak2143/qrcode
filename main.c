@@ -11,20 +11,32 @@ typedef struct capacity {
 } capacity;
 
 capacity* readCapacityTable(char* filename);
+int textType(char* text);
+int validEC(char* text);
 
-int main(void) {
+int main(int argc, char* argv[]) {
+	if (argc != 3) {
+		printf("Usage: %s text EC_level\n", argv[0]);
+		return 1;
+	}
 	// how do you find the minm version of qrcode needed to encode the given data?
 	// we'll be only using alphanumeric for now
 	// ./qrcode --encode "hello123" -Ec L
 	// here we are using error correction level - low
+	char* text = argv[1];
+	char* ec_level = argv[2];
+	int char_type = textType(text);
+	if (validEC(ec_level) == 0) return 0;
+	printf("Text: %s\n", text);
+	printf("EC_level: %s\n", ec_level);
 	capacity* cap = readCapacityTable("qr_capacity_table.csv");
 	if (cap == NULL) return 1;
-	for (int i = 0; cap[i].version != 0; i++) {
-		printf("Version: %ld\n", cap[i].version);
-		printf("EC Level: %s\n", cap[i].EC_level);
-		printf("Alphanum capacity: %ld\n", cap[i].alphanum_capacity);
-		printf("Byte capacity: %ld\n", cap[i].byte_capacity);
-	}
+	// for (int i = 0; cap[i].version != 0; i++) {
+	// 	printf("Version: %ld\n", cap[i].version);
+	// 	printf("EC Level: %s\n", cap[i].EC_level);
+	// 	printf("Alphanum capacity: %ld\n", cap[i].alphanum_capacity);
+	// 	printf("Byte capacity: %ld\n", cap[i].byte_capacity);
+	// }
 	free(cap);
 	return 0;
 }
@@ -69,4 +81,24 @@ capacity* readCapacityTable(char* filename) {
 	}
 	fclose(fp);
 	return cap;
+}
+
+int textType(char* text) {
+	// return 1 for byte else 0 for alphanum
+	for (int i = 0; text[i] != '\0'; i++) {
+		if (!isalnum(text[i])) return 1;
+	}
+	return 0;
+}
+
+int validEC(char* text) {
+	if (strlen(text) != 1) return 0;
+	// check if the text is valid ec level and capitalize too
+	text[0] = toupper(text[0]);
+	if (strcmp(text, "L") != 0 && strcmp(text, "M") != 0 && 
+			strcmp(text, "Q") != 0 && strcmp(text, "H") != 0) {
+		printf("Invalid EC_level\n");
+		return 0;
+	}
+	else return 1;
 }
