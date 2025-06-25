@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <ctype.h>
+#include <stdint.h>
 
 int main(void) {
 	// how do you find the minm version of qrcode needed to encode the given data?
