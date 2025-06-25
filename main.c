@@ -24,19 +24,34 @@ int main(int argc, char* argv[]) {
 	// ./qrcode --encode "hello123" -Ec L
 	// here we are using error correction level - low
 	char* text = argv[1];
+	size_t length = strlen(text);
 	char* ec_level = argv[2];
 	int char_type = textType(text);
 	if (validEC(ec_level) == 0) return 0;
+	printf("Text type: %s\n", (char_type == 0) ? "Alphanumeric": "Byte");
 	printf("Text: %s\n", text);
 	printf("EC_level: %s\n", ec_level);
 	capacity* cap = readCapacityTable("qr_capacity_table.csv");
 	if (cap == NULL) return 1;
-	// for (int i = 0; cap[i].version != 0; i++) {
-	// 	printf("Version: %ld\n", cap[i].version);
-	// 	printf("EC Level: %s\n", cap[i].EC_level);
-	// 	printf("Alphanum capacity: %ld\n", cap[i].alphanum_capacity);
-	// 	printf("Byte capacity: %ld\n", cap[i].byte_capacity);
-	// }
+
+	size_t version;
+	for (int i = 0; cap[i].version != 0; i++) {
+		if (strcmp(cap[i].EC_level, ec_level) == 0) {
+			// we need to find the first occurence of a number greater than the strlen
+			if (char_type == 0) {
+				if (cap[i].alphanum_capacity > length) {
+					version = cap[i].version;
+					break;
+				}
+			} else {
+				if (cap[i].byte_capacity > length) {
+					version = cap[i].version;
+					break;
+				}
+			}
+		}
+	}
+	printf("Minimum version needed: %zu\n", version);
 	free(cap);
 	return 0;
 }
