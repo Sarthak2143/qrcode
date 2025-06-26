@@ -51,8 +51,10 @@ int main(int argc, char* argv[]) {
 			}
 		}
 	}
-	printf("Minimum version needed: %zu\n", version);
 	free(cap);
+	printf("Minimum version needed: %zu\n", version);
+	size_t dimensions = 4 * version + 17;
+	printf("Dimensions for qr code: %ldx%ld\n", dimensions, dimensions);
 	return 0;
 }
 
@@ -82,7 +84,7 @@ capacity* readCapacityTable(char* filename) {
 				csv_data[j][k] = '\0';
 				j++;
 				k = 0;
-			}	else {
+			} else {
 				csv_data[j][k] = line[i];
 				k++;
 			}
